@@ -1,0 +1,5 @@
+package com.expense.my_expense
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
