@@ -151,8 +151,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                 DropdownButtonFormField<String>(
                   validator: (value) {
-                    if (value == null) {
-                      return "Please choose a category";
+                    if (value == null || value.isEmpty) {
+                      return "Amount cannot be empty";
+                    }
+
+                    final amount = int.tryParse(value);
+
+                    if (amount == null || amount <= 0) {
+                      return "Amount must be greater than 0";
                     }
 
                     return null;
@@ -333,6 +339,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
                 // Notes
                 Text(
+                  maxLines: 3,
                   "Notes (optional)",
                   style: TextStyle(
                     color: Colors.white,

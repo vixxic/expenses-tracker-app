@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import '../widgets/expense_card.dart';
+import '../widgets/delete_confirmation.dart';
 import 'add_expense.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,7 +24,7 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    if (result != null) {
+    if (result != null && mounted) {
       setState(() {
         expenses.add(result);
       });
@@ -41,15 +42,31 @@ class _HomePageState extends State<HomePage> {
       ),
     );
 
-    if (result != null) {
+    if (result != null && mounted) {
       setState(() {
         expenses[index] = result;
       });
     }
   }
 
+  // DELETE EXPENSE
+  Future<void> deleteExpense(int index) async {
+    final expense = expenses[index];
+
+    final confirm = await showDeleteConfirmation(
+      context,
+      expense,
+    );
+
+    if (confirm == true && mounted) {
+      setState(() {
+        expenses.removeAt(index);
+      });
+    }
+  }
+
   // CALCULATE TOTAL
-  int calculateTotalExpenses(List<Map<String, dynamic>> expenses) {
+  int calculateTotalExpenses() {
     int total = 0;
 
     for (int i = 0; i < expenses.length; i++) {
@@ -62,6 +79,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF0E1222),
+
       appBar: AppBar(
         title: const Padding(
           padding: EdgeInsets.all(10),
@@ -81,6 +100,8 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(25),
         child: Column(
           children: [
+
+            // TOTAL EXPENSES CARD
             Container(
               width: double.infinity,
               height: 190,
@@ -88,12 +109,14 @@ class _HomePageState extends State<HomePage> {
                 color: const Color(0xFF232B54),
                 borderRadius: BorderRadius.circular(20),
               ),
+
               child: Padding(
                 padding: const EdgeInsets.all(25),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+
                     const Text(
                       "Total expenses",
                       style: TextStyle(
@@ -103,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                     ),
 
                     Text(
-                      "Rp ${calculateTotalExpenses(expenses)}",
+                      "Rp ${calculateTotalExpenses()}",
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 45,
@@ -130,18 +153,41 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
 
+            // EXPENSE LIST / EMPTY STATE
             Expanded(
-              child: ListView.builder(
+              child: expenses.isEmpty
+
+              // EMPTY STATE
+                  ? const Center(
+                child: Text(
+                  "No expenses yet. Add your first expense!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF9398AE),
+                    fontSize: 15,
+                  ),
+                ),
+              )
+
+              // EXPENSE LIST
+                  : ListView.builder(
                 padding: const EdgeInsets.only(top: 20),
                 itemCount: expenses.length,
+
                 itemBuilder: (context, index) {
                   final expense = expenses[index];
 
                   return ExpenseCard(
                     expense: expense,
 
+                    // EDIT
                     onEdit: () {
                       openEditExpense(index);
+                    },
+
+                    // DELETE
+                    onDelete: () {
+                      deleteExpense(index);
                     },
                   );
                 },
@@ -151,6 +197,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
 
+      // ADD EXPENSE BUTTON
       bottomNavigationBar: Container(
         height: 80,
         color: const Color(0xFF171C33),
@@ -159,9 +206,11 @@ class _HomePageState extends State<HomePage> {
           left: 25,
           right: 25,
         ),
+
         child: FloatingActionButton(
           onPressed: openAddExpense,
           backgroundColor: const Color(0xFFF2B138),
+
           child: const Text(
             "Add Expense",
             style: TextStyle(

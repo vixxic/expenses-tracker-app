@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 class ExpenseCard extends StatelessWidget {
   final Map<String, dynamic> expense;
   final VoidCallback onEdit;
+  final VoidCallback onDelete;
 
   const ExpenseCard({
     super.key,
     required this.expense,
     required this.onEdit,
+    required this.onDelete,
   });
 
   @override
@@ -137,9 +139,7 @@ class ExpenseCard extends StatelessWidget {
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
 
-                  onPressed: () {
-                    print("delete");
-                  },
+                  onPressed: onDelete,
 
                   child: const Text(
                     "Delete",
